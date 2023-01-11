@@ -72,7 +72,7 @@ adminRoute.get('/confirmOrder',adminMiddleware.isLogin, adminController.confirmO
 
 adminRoute.get('/adminDeliveredOrder',adminMiddleware.isLogin,adminController.adminDeliveredOrder);
 
-
+adminRoute.get('/download',adminMiddleware.isLogin,adminController.adminDownload);
 
 
 

@@ -7,7 +7,7 @@ const Banner = require('../model/bannerModel')
 const bcrypt = require('bcrypt')
 const path = require('path')
 const multer = require('multer')
-const ExcelJS = require('exceljs');
+const excelJS = require('exceljs');
 
 let isAdminLoggedin
 isAdminLoggedin = false
@@ -577,7 +577,52 @@ const loadOffer = async(req, res)=>{
     }
   }
 
+  const adminDownload = async(req,res)=>{
+    try{
 
+      const workbook = new excelJS.Workbook();
+      const worksheet = workbook.addWorksheet("Stock Report")
+
+      worksheet.columns = [
+        {header:"Sl No.", key:"s_no"},
+        {header:"Product", key:"name"},
+        {header:"Category", key:"category"},
+        {header:"Price", key:"price"},
+        {header:"Quantity", key:"quantity"},
+        {header:"Rating", key:"rating"},
+        {header:"Sales", key:"sales"},
+        {header:"isAvailable", key:"isAvailable"},
+
+      ]
+      let counter = 1
+
+      const productData = await Product.find()
+
+      productData.forEach((product) => {
+        product.s_no = counter;
+        worksheet.addRow(product)
+        counter++;
+      })
+
+      worksheet.getRow(1).eachCell((cell) => {
+        cell.font = {bold:true}
+      })
+
+      res.setHeader(
+        "Content-Type",
+        "application/vnd.openxmlformats-officedocument.spreadsheatml.sheet"
+      )
+
+      res.setHeader("Content-Disposition","attachment; filename=products.xlsx")
+
+      return workbook.xlsx.write(res).then(()=>{
+        res.status(200);
+      })
+
+    }catch(error){
+      console.log(error.message);
+    }
+  }
 
   
 
@@ -616,7 +661,8 @@ module.exports = {
     adminSalesReport,
     adminDeliveredOrder,
     stockReport,
-    adminOrderDetails
+    adminOrderDetails,
+    adminDownload
     
     
 }
